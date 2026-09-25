@@ -1,0 +1,12 @@
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import workflowRouter from './routes/workflow.js';
+const app=express();
+app.use(cors({origin:process.env.FRONTEND_ORIGIN?.split(',')||true}));
+app.use(express.json({limit:'1mb'}));
+app.get('/api/health',(_req,res)=>res.json({ok:true,provider:process.env.AI_API_KEY?'configured':'demo'}));
+app.use('/api',workflowRouter);
+app.use((err,_req,res,_next)=>{console.error(err);res.status(500).json({error:'Studio service error',detail:process.env.NODE_ENV==='development'?err.message:undefined});});
+const port=Number(process.env.PORT)||8787;
+app.listen(port,()=>console.log(`Swipe to Brand API listening on http://localhost:${port}`));
